@@ -32,4 +32,4 @@ One click makes the same plate for other places: an Instagram story, a Swiggy ti
 Why audit every version? Because when I asked an image editor to just restyle this dosa, it sent back a chicken salad. Without the audit, that is the photo that ships.
 
 **[2:25, card: Meta models + links]**
-PlateProof uses SAM 3.1, Muse Spark, Muse Image, Muse Spark Open and Muse Voice. It is live and open source. Honest photos for honest kitchens. Built in Hyderabad.
+PlateProof uses SAM 3.1, Muse Spark, Muse Image, Muse Spark Open and Muse Voice. It is live and open source. Honest photos for honest kitchens.
