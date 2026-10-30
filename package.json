@@ -7,7 +7,7 @@
   "engines": { "node": ">=20.17" },
   "scripts": {
     "start": "node src/server.mjs",
-    "test": "node --test test/",
+    "test": "node --test test/**/*.test.mjs",
     "probe": "node scripts/probe-api.mjs"
   },
   "license": "MIT"
