@@ -69,16 +69,16 @@ Sample photos are real restaurant plates from Wikimedia Commons (CC BY-SA, see `
 |---|---|---|---|
 | Street chicken biryani, Hyderabad | rice, 3 chicken pieces, red plate | 1 | approved, 42 s |
 | Rava masala dosa, Bengaluru | 1 dosa, 1 sambar bowl, 1 coconut chutney bowl, banana leaf, spoon | 1 | approved, 48–50 s |
-| Andhra bhojanam (20+ items) | 19 components | — | too many items for a 3-round loop; kept as the honest limit |
+| Andhra bhojanam (20+ items) | 19 components found | — | not run through the loop yet; included to show where the inventory gets dense |
 
 Before the bowl-counting fix, the dosa run failed three times in a row: the auditor caught the missing sambar and chutney bowls twice and a missing spoon once. Those rounds are the reason the audit exists.
 
 ## Limits
 
-- Muse Image follows counts well up to about 6 countable components; busy thalis time out of the loop.
+- Tested on plates with up to 5 countable components; busy thalis with 20 items are untested and will likely need more rounds.
 - SAM 3.1 is prompted with short noun phrases; two components in identical vessels are split by the vision count.
 - Platform policy: Zomato rejects AI-generated dish images. Use PlateProof images where they are allowed, and keep the report with them.
-- Registries of taste change; a photo approved today is approved against today's plate.
+- A photo is approved against the plate in the clip you gave it, on that day. Change the plating, film it again.
 
 ## Licence
 
