@@ -2,6 +2,8 @@
 
 **Honest menu photos.** Film the plate you actually serve. PlateProof turns it into a listing-quality image, and refuses to show you one that does not match your plate.
 
+**Live:** https://plateproof-1037019152152.asia-south1.run.app
+
 Built for the Meta Global AI Developer Hackathon (Indie track), Oct–Nov 2026, by Ankith M, Hyderabad.
 
 ## Why
