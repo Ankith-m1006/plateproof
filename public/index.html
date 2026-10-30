@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlateProof</title>
+<meta name="description" content="Honest menu photos. Film the real plate; get a listing image that an independent auditor has checked against it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=Noto+Sans+Telugu:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#141414; --mute:#6b6b6b; --line:#e8e4dd; --paper:#fff; --cream:#faf7f2; --pass:#1d7a46; --pass-bg:#e7f5ec; --fail:#b3261e; --fail-bg:#fbe9e7; --accent:#d9480f; --accent-bg:#fff1e8; }
+  * { box-sizing:border-box } html,body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 Inter, system-ui, sans-serif; }
+  body { padding:0 16px 80px; max-width:1180px; margin:0 auto }
+  h1,h2,h3 { font-family:Fraunces, Georgia, serif; font-weight:700; letter-spacing:-.01em; margin:0 }
+  header { display:flex; align-items:baseline; justify-content:space-between; gap:16px; padding:22px 0 10px; border-bottom:1px solid var(--line); flex-wrap:wrap }
+  header h1 { font-size:28px } header h1 span { color:var(--accent) }
+  header p { margin:0; color:var(--mute); font-size:14px }
+  .hero { padding:26px 0 10px } .hero h2 { font-size:clamp(26px,4vw,40px); line-height:1.1; max-width:720px }
+  .hero p { color:var(--mute); max-width:640px; margin:12px 0 0 }
+  .card { background:var(--cream); border:1px solid var(--line); border-radius:18px; padding:18px }
+  .grid { display:grid; gap:14px } @media (min-width:900px){ .grid.three { grid-template-columns:1fr 1fr 1fr } .grid.two { grid-template-columns:1.1fr .9fr } }
+  .drop { border:1.5px dashed #cfc8bd; border-radius:14px; padding:22px; text-align:center; background:#fff; cursor:pointer; transition:.15s }
+  .drop:hover, .drop.over { border-color:var(--accent); background:var(--accent-bg) }
+  .drop img, .drop video { max-height:220px; max-width:100%; border-radius:10px; display:block; margin:0 auto 8px }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px } .chip { border:1px solid var(--line); background:#fff; border-radius:999px; padding:6px 12px; font-size:13px; cursor:pointer } .chip:hover { border-color:var(--ink) }
+  label { display:block; font-size:13px; color:var(--mute); margin:14px 0 6px } input[type=text], textarea { width:100%; border:1px solid var(--line); border-radius:10px; padding:10px 12px; font:inherit; background:#fff }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap }
+  button { font:inherit; border:0; border-radius:12px; padding:12px 18px; cursor:pointer; font-weight:600 }
+  .primary { background:var(--ink); color:#fff } .primary:disabled { opacity:.5; cursor:default } .ghost { background:#fff; border:1px solid var(--line) } .ghost.rec { border-color:var(--fail); color:var(--fail) }
+  .echo { font-family:"Noto Sans Telugu", Inter, sans-serif; color:var(--ink); background:#fff; border-left:3px solid var(--accent); padding:8px 12px; border-radius:0 10px 10px 0; margin-top:8px; font-size:14px }
+  .panel h3 { font-size:17px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center }
+  .frame { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; aspect-ratio:1; display:grid; place-items:center; position:relative }
+  .frame img { width:100%; height:100%; object-fit:cover }
+  .stamp { position:absolute; top:10px; left:10px; font-weight:700; font-size:12px; letter-spacing:.08em; padding:5px 9px; border-radius:8px; text-transform:uppercase }
+  .stamp.pass { background:var(--pass-bg); color:var(--pass) } .stamp.fail { background:var(--fail-bg); color:var(--fail) } .stamp.wait { background:#eee; color:#555 }
+  .inv { list-style:none; padding:0; margin:10px 0 0; display:flex; flex-wrap:wrap; gap:6px } .inv li { font-size:13px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:4px 9px } .inv li b { color:var(--accent) } .inv li small { color:var(--mute) }
+  .rounds { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px } .round { min-width:150px; flex:1 } .round .frame { aspect-ratio:1 }
+  .why { font-size:13px; color:var(--mute); margin-top:6px; min-height:1em } .why b { color:var(--fail) }
+  .report { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px } .report p { margin:0 0 8px } .report .te { font-family:"Noto Sans Telugu", Inter, sans-serif; color:#333 }
+  .log { font:12px/1.5 ui-monospace, Menlo, Consolas, monospace; color:var(--mute); background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px 12px; max-height:160px; overflow:auto; white-space:pre-wrap }
+  .meta { font-size:12px; color:var(--mute); margin-top:10px } .meta code { background:#fff; border:1px solid var(--line); padding:1px 5px; border-radius:5px }
+  .hidden { display:none }
+  footer { margin-top:40px; padding-top:16px; border-top:1px solid var(--line); color:var(--mute); font-size:13px }
+  .pill { display:inline-block; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); background:var(--accent-bg); border-radius:999px; padding:3px 8px }
+</style>
+</head>
+<body>
+<header>
+  <h1>Plate<span>Proof</span></h1>
+  <p>Honest menu photos. Every image is checked against the real plate before you see it.</p>
+</header>
+
+<section class="hero">
+  <span class="pill">Build for your world</span>
+  <h2>Film the plate you actually serve. Get the photo your menu deserves, and a receipt that proves it is honest.</h2>
+  <p>SAM 3.1 inventories the real dish. Muse Image shoots it. An independent auditor on open weights rejects anything invented or missing, until the picture matches your plate.</p>
+</section>
+
+<div class="grid two">
+  <div class="card" id="input">
+    <div class="drop" id="drop">
+      <div id="preview"><strong>Drop a plate photo or a 5-second clip</strong><br><span style="color:var(--mute);font-size:14px">or tap to choose from your phone</span></div>
+      <input type="file" id="file" accept="image/*,video/*" capture="environment" class="hidden">
+    </div>
+    <div class="chips">
+      <span style="font-size:13px;color:var(--mute);align-self:center">Try a real plate:</span>
+      <button class="chip" data-sample="/samples/biryani.jpg">Street biryani, Hyderabad</button>
+      <button class="chip" data-sample="/samples/dosa.jpg">Rava dosa, Bengaluru</button>
+      <button class="chip" data-sample="/samples/thali.jpg">Andhra bhojanam</button>
+    </div>
+    <label>Tell it in your words (Telugu, Hindi or English)</label>
+    <div class="row">
+      <button class="ghost" id="rec">🎙 Hold to speak</button>
+      <span id="voiceState" style="font-size:13px;color:var(--mute)"></span>
+    </div>
+    <div class="echo hidden" id="echo"></div>
+    <label>Style (optional)</label>
+    <input type="text" id="style" placeholder="clean overhead menu photo, soft daylight, neutral background">
+    <label>How the dish really looks (optional corrections)</label>
+    <input type="text" id="corrections" placeholder="e.g. our gravy is darker, we serve it on a steel plate">
+    <div class="row" style="margin-top:16px">
+      <button class="primary" id="run" disabled>Make the honest photo</button>
+      <span id="status" style="font-size:13px;color:var(--mute)"></span>
+    </div>
+  </div>
+
+  <div class="card panel" id="realPanel">
+    <h3>What is really on the plate <span class="pill" id="eyes">SAM 3.1 + Muse Spark</span></h3>
+    <div class="frame" id="realFrame"><span style="color:var(--mute);font-size:14px">Your plate appears here</span></div>
+    <ul class="inv" id="realInv"></ul>
+  </div>
+</div>
+
+<div class="grid three" style="margin-top:14px">
+  <div class="card panel" style="grid-column:1 / -1">
+    <h3>The loop <span class="pill">Muse Image → audit on Muse Spark Open</span></h3>
+    <div class="rounds" id="rounds"></div>
+  </div>
+</div>
+
+<div class="grid two" style="margin-top:14px">
+  <div class="card panel">
+    <h3>Approved photo <span class="pill" id="finalStamp">waiting</span></h3>
+    <div class="frame" id="finalFrame"><span style="color:var(--mute);font-size:14px">Nothing approved yet</span></div>
+    <div class="row" style="margin-top:10px"><a id="download" class="ghost hidden" style="text-decoration:none;padding:10px 14px;border-radius:12px;border:1px solid var(--line)" download="plateproof.png">Download for your menu</a></div>
+  </div>
+  <div class="card panel">
+    <h3>Faithfulness report</h3>
+    <div class="report" id="report"><p style="color:var(--mute)">The auditor's words, in English and Telugu, appear here.</p></div>
+    <div class="meta" id="meta"></div>
+    <div class="log" id="log" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<footer>
+  PlateProof never adds a thing that is not on your plate. Source clip hash and every audit round are kept with the photo. Zomato currently rejects AI-generated dish images; use PlateProof images where they are allowed (your own menu, WhatsApp, Instagram, Swiggy) and keep the report with them.
+</footer>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let dataUrl = null, mediaRecorder = null, chunks = [];
+const setStatus = (t) => $("#status").textContent = t;
+
+function showPreview(url, isVideo) {
+  $("#preview").innerHTML = isVideo ? `<video src="${url}" muted autoplay loop playsinline></video>` : `<img src="${url}" alt="plate">`;
+  $("#realFrame").innerHTML = isVideo ? `<video src="${url}" muted autoplay loop playsinline style="width:100%;height:100%;object-fit:cover"></video>` : `<img src="${url}" alt="real plate">`;
+  $("#run").disabled = false;
+}
+async function fileToDataUrl(file) { return new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(file); }); }
+$("#drop").onclick = () => $("#file").click();
+$("#drop").ondragover = (e) => { e.preventDefault(); $("#drop").classList.add("over"); };
+$("#drop").ondragleave = () => $("#drop").classList.remove("over");
+$("#drop").ondrop = async (e) => { e.preventDefault(); $("#drop").classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) await useFile(f); };
+$("#file").onchange = async (e) => { const f = e.target.files[0]; if (f) await useFile(f); };
+async function useFile(f) { dataUrl = await fileToDataUrl(f); showPreview(dataUrl, f.type.startsWith("video/")); }
+document.querySelectorAll("[data-sample]").forEach((b) => b.onclick = async () => { const blob = await (await fetch(b.dataset.sample)).blob(); dataUrl = await fileToDataUrl(blob); showPreview(dataUrl, false); });
+
+// voice: hold to speak
+const rec = $("#rec");
+async function startRec() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    chunks = []; mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach((t) => t.stop());
+      const blob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
+      $("#voiceState").textContent = "listening to you…";
+      const r = await fetch("/api/voice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dataUrl: await fileToDataUrl(blob) }) }).then((r) => r.json());
+      if (r.error) { $("#voiceState").textContent = r.error; return; }
+      $("#voiceState").textContent = `heard: “${r.text}”`;
+      const q = r.request; $("#echo").textContent = q.echo; $("#echo").classList.remove("hidden");
+      if (q.style) $("#style").value = q.style; if (q.corrections) $("#corrections").value = q.corrections; if (q.dish_hint) $("#style").dataset.hint = q.dish_hint;
+    };
+    mediaRecorder.start(); rec.classList.add("rec"); rec.textContent = "● Recording… release to stop";
+  } catch (e) { $("#voiceState").textContent = "microphone not available"; }
+}
+function stopRec() { if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop(); rec.classList.remove("rec"); rec.textContent = "🎙 Hold to speak"; }
+rec.onpointerdown = startRec; rec.onpointerup = stopRec; rec.onpointerleave = stopRec;
+
+const invList = (ul, inv) => { ul.innerHTML = ""; for (const c of inv.components) { const li = document.createElement("li"); li.innerHTML = `${c.count > 0 ? `<b>${c.count}×</b> ` : ""}${c.name} <small>${c.colour}${c.count_source?.startsWith("sam") ? " · counted by SAM" : ""}</small>`; ul.appendChild(li); } for (const n of inv.not_present || []) { const li = document.createElement("li"); li.style.opacity = .55; li.innerHTML = `<small>not on plate:</small> ${n}`; ul.appendChild(li); } };
+const addLog = (m) => { const l = $("#log"); l.textContent += m + "\n"; l.scrollTop = l.scrollHeight; };
+
+$("#run").onclick = async () => {
+  $("#run").disabled = true; setStatus("starting…"); $("#rounds").innerHTML = ""; $("#log").textContent = ""; $("#realInv").innerHTML = ""; $("#download").classList.add("hidden"); $("#finalStamp").textContent = "working"; $("#report").innerHTML = "";
+  const body = { dataUrl, style: $("#style").value, corrections: $("#corrections").value, hint: $("#style").dataset.hint || "" };
+  const { id, source, error } = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json());
+  if (error) { setStatus(error); $("#run").disabled = false; return; }
+  const es = new EventSource(`/api/events/${id}`);
+  es.onmessage = (e) => {
+    const ev = JSON.parse(e.data);
+    if (ev.type === "log") { addLog(ev.msg); setStatus(ev.msg.slice(0, 60)); }
+    if (ev.type === "round" && ev.stage === "inventory") invList($("#realInv"), ev.real);
+    if (ev.type === "round" && ev.stage === "round") {
+      const d = document.createElement("div"); d.className = "round";
+      const v = ev.verdict; const why = v.pass ? "Nothing invented, nothing missing." : [...v.invented.map((x) => `<b>invented</b> ${x}`), ...v.missing.map((x) => `<b>missing</b> ${x}`), ...v.count_mismatch.map((m) => `<b>${m.component}</b> ${m.candidate} vs ${m.real} real`)].join(" · ");
+      d.innerHTML = `<div class="frame"><img src="/runs/${id}/${ev.candidate}" alt="candidate ${ev.round}"><span class="stamp ${v.pass ? "pass" : "fail"}">${v.pass ? "passed" : "rejected"} · round ${ev.round}</span></div><div class="why">${why}</div>`;
+      $("#rounds").appendChild(d);
+    }
+    if (ev.type === "done") {
+      es.close(); const r = ev.result; $("#run").disabled = false; setStatus(`done in ${r.seconds} s`);
+      $("#finalStamp").textContent = r.accepted ? `approved after ${r.rounds} round${r.rounds > 1 ? "s" : ""}` : `not approved after ${r.rounds} rounds`;
+      if (r.image) { $("#finalFrame").innerHTML = `<img src="${r.image}" alt="approved"><span class="stamp pass">audited</span>`; $("#download").href = r.image; $("#download").classList.remove("hidden"); }
+      else $("#finalFrame").innerHTML = `<span style="padding:16px;text-align:center;color:var(--fail)">No candidate passed the audit. We do not ship a photo we cannot vouch for.</span>`;
+      $("#report").innerHTML = `<p>${r.report_en}</p><p class="te">${r.report_te}</p>`;
+      $("#meta").innerHTML = `source sha256 <code>${r.source_sha256.slice(0, 16)}…</code> · eyes <code>${r.models.eyes}</code> · generator <code>${r.models.generator}</code> · auditor <code>${r.models.auditor}</code>`;
+    }
+    if (ev.type === "error") { es.close(); setStatus("error: " + ev.msg); $("#run").disabled = false; }
+  };
+};
+</script>
+</body>
+</html>

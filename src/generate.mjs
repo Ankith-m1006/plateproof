@@ -35,12 +35,13 @@ export async function audit(real, candidate) {
   return json;
 }
 
-export async function runLoop(imagePath, { style, maxRounds = 3, log = () => {}, outDir } = {}) {
+export async function runLoop(imagePath, { style, hint, maxRounds = 3, log = () => {}, onRound = () => {}, outDir } = {}) {
   const name = path.basename(imagePath, path.extname(imagePath));
   outDir ||= path.join("runs", name); fs.mkdirSync(outDir, { recursive: true });
   const started = Date.now();
   log("inventory of the real plate…");
-  const real = await extractInventory(imagePath, { log });
+  const real = await extractInventory(imagePath, { log, hint });
+  onRound({ stage: "inventory", real });
   fs.writeFileSync(path.join(outDir, "real-inventory.json"), JSON.stringify(real, null, 2));
   const rounds = []; let fix = "";
   for (let r = 1; r <= maxRounds; r++) {
@@ -54,6 +55,7 @@ export async function runLoop(imagePath, { style, maxRounds = 3, log = () => {},
     rounds.push({ round: r, prompt: spec, candidate: candPath, candidate_inventory: cand, verdict });
     fs.writeFileSync(path.join(outDir, `round-${r}.json`), JSON.stringify(rounds[r - 1], null, 2));
     log(`round ${r}: ${verdict.pass ? "PASS" : "FAIL"} invented=${verdict.invented.join("|")} missing=${verdict.missing.join("|")} counts=${JSON.stringify(verdict.count_mismatch)}`);
+    onRound({ stage: "round", round: r, candidate: path.basename(candPath), verdict, prompt: spec.prompt });
     if (verdict.pass) break;
     fix = verdict.fix_instruction;
   }
