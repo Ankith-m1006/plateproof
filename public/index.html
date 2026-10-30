@@ -103,6 +103,11 @@
     <h3>Approved photo <span class="pill" id="finalStamp">waiting</span></h3>
     <div class="frame" id="finalFrame"><span style="color:var(--mute);font-size:14px">Nothing approved yet</span></div>
     <div class="row" style="margin-top:10px"><a id="download" class="ghost hidden" style="text-decoration:none;padding:10px 14px;border-radius:12px;border:1px solid var(--line)" download="plateproof.png">Download for your menu</a></div>
+    <div id="variants" class="hidden" style="margin-top:14px">
+      <div style="font-size:13px;color:var(--mute);margin-bottom:6px">Same plate, other places. Each one is audited again.</div>
+      <div class="chips" style="margin-top:0"><button class="chip" data-variant="story">Instagram story 9:16</button><button class="chip" data-variant="swiggy">Swiggy tile 1:1</button><button class="chip" data-variant="whatsapp">WhatsApp catalogue 3:2</button></div>
+      <div class="rounds" id="variantStrip" style="margin-top:10px"></div>
+    </div>
   </div>
   <div class="card panel">
     <h3>Faithfulness report</h3>
@@ -118,7 +123,7 @@
 
 <script>
 const $ = (s) => document.querySelector(s);
-let dataUrl = null, mediaRecorder = null, chunks = [];
+let dataUrl = null, mediaRecorder = null, chunks = [], currentJob = null;
 const setStatus = (t) => $("#status").textContent = t;
 
 function showPreview(url, isVideo) {
@@ -180,6 +185,7 @@ $("#run").onclick = async () => {
     if (ev.type === "done") {
       es.close(); const r = ev.result; $("#run").disabled = false; setStatus(`done in ${r.seconds} s`);
       $("#finalStamp").textContent = r.accepted ? `approved after ${r.rounds} round${r.rounds > 1 ? "s" : ""}` : `not approved after ${r.rounds} rounds`;
+      currentJob = id; $("#variants").classList.toggle("hidden", !r.accepted); $("#variantStrip").innerHTML = "";
       if (r.image) { $("#finalFrame").innerHTML = `<img src="${r.image}" alt="approved"><span class="stamp pass">audited</span>`; $("#download").href = r.image; $("#download").classList.remove("hidden"); }
       else $("#finalFrame").innerHTML = `<span style="padding:16px;text-align:center;color:var(--fail)">No candidate passed the audit. We do not ship a photo we cannot vouch for.</span>`;
       $("#report").innerHTML = `<p>${r.report_en}</p><p class="te">${r.report_te}</p>`;
@@ -188,6 +194,18 @@ $("#run").onclick = async () => {
     if (ev.type === "error") { es.close(); setStatus("error: " + ev.msg); $("#run").disabled = false; }
   };
 };
+
+document.querySelectorAll("[data-variant]").forEach((b) => b.onclick = async () => {
+  if (!currentJob) return; b.disabled = true; const key = b.dataset.variant;
+  const tile = document.createElement("div"); tile.className = "round"; tile.innerHTML = `<div class="frame"><span class="stamp wait">${key} · working</span></div><div class="why">generating and auditing…</div>`; $("#variantStrip").appendChild(tile);
+  const { id, error } = await fetch("/api/variant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: currentJob, key }) }).then((r) => r.json());
+  if (error) { tile.querySelector(".why").textContent = error; b.disabled = false; return; }
+  const es = new EventSource(`/api/events/${encodeURIComponent(id)}`);
+  es.onmessage = (e) => { const ev = JSON.parse(e.data);
+    if (ev.type === "round" && ev.stage === "round") { const v = ev.verdict; tile.querySelector(".frame").innerHTML = `<img src="/runs/${currentJob}/${ev.candidate}" alt="${key}"><span class="stamp ${v.pass ? "pass" : "fail"}">${key} · ${v.pass ? "passed" : "rejected"} · round ${ev.round}</span>`; tile.querySelector(".why").innerHTML = v.pass ? "Nothing invented, nothing missing." : [...v.invented.map((x) => `<b>invented</b> ${x}`), ...v.missing.map((x) => `<b>missing</b> ${x}`)].join(" · "); }
+    if (ev.type === "done") { es.close(); b.disabled = false; if (ev.result.image) tile.querySelector(".why").innerHTML += ` <a href="${ev.result.image}" download="plateproof-${key}.png">download</a>`; }
+    if (ev.type === "error") { es.close(); b.disabled = false; tile.querySelector(".why").textContent = ev.msg; } };
+});
 </script>
 </body>
 </html>

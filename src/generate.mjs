@@ -35,25 +35,25 @@ export async function audit(real, candidate) {
   return json;
 }
 
-export async function runLoop(imagePath, { style, hint, maxRounds = 3, log = () => {}, onRound = () => {}, outDir } = {}) {
+export async function runLoop(imagePath, { style, hint, maxRounds = 3, log = () => {}, onRound = () => {}, outDir, real: knownReal, size = "1024x1024", tag = "candidate" } = {}) {
   const name = path.basename(imagePath, path.extname(imagePath));
   outDir ||= path.join("runs", name); fs.mkdirSync(outDir, { recursive: true });
   const started = Date.now();
   log("inventory of the real plate…");
   const real = await extractInventory(imagePath, { log, hint });
   onRound({ stage: "inventory", real });
-  fs.writeFileSync(path.join(outDir, "real-inventory.json"), JSON.stringify(real, null, 2));
+  if (!knownReal) fs.writeFileSync(path.join(outDir, "real-inventory.json"), JSON.stringify(real, null, 2));
   const rounds = []; let fix = "";
   for (let r = 1; r <= maxRounds; r++) {
     const spec = await buildPrompt(real, { style, fix });
     log(`round ${r}: generating… (${spec.prompt.slice(0, 90)}…)`);
-    const [png] = await museImage({ prompt: `${spec.prompt} Do not include: ${spec.must_not_appear.join(", ")}.` });
-    const candPath = path.join(outDir, `candidate-${r}.png`); fs.writeFileSync(candPath, png);
+    const [png] = await museImage({ prompt: `${spec.prompt} Do not include: ${spec.must_not_appear.join(", ")}.`, size });
+    const candPath = path.join(outDir, `${tag}-${r}.png`); fs.writeFileSync(candPath, png);
     log(`round ${r}: auditing…`);
     const cand = await extractInventory(candPath, { log });
     const verdict = await audit(real, cand);
     rounds.push({ round: r, prompt: spec, candidate: candPath, candidate_inventory: cand, verdict });
-    fs.writeFileSync(path.join(outDir, `round-${r}.json`), JSON.stringify(rounds[r - 1], null, 2));
+    fs.writeFileSync(path.join(outDir, `${tag}-round-${r}.json`), JSON.stringify(rounds[r - 1], null, 2));
     log(`round ${r}: ${verdict.pass ? "PASS" : "FAIL"} invented=${verdict.invented.join("|")} missing=${verdict.missing.join("|")} counts=${JSON.stringify(verdict.count_mismatch)}`);
     onRound({ stage: "round", round: r, candidate: path.basename(candPath), verdict, prompt: spec.prompt });
     if (verdict.pass) break;
@@ -62,11 +62,22 @@ export async function runLoop(imagePath, { style, hint, maxRounds = 3, log = () 
   const final = rounds[rounds.length - 1];
   const result = { source: imagePath, source_sha256: sha256(imagePath), real, rounds: rounds.length, accepted: final.verdict.pass, image: final.verdict.pass ? final.candidate : null,
     report_en: final.verdict.report_en, report_te: final.verdict.report_te, seconds: Math.round((Date.now() - started) / 1000), models: { eyes: "sam-3.1 + muse-spark-1.3", generator: "muse-image-1.0", auditor: "muse-spark-open (Baseten)" } };
-  fs.writeFileSync(path.join(outDir, "result.json"), JSON.stringify(result, null, 2));
+  fs.writeFileSync(path.join(outDir, tag === "candidate" ? "result.json" : `${tag}-result.json`), JSON.stringify(result, null, 2));
   return result;
 }
 
 if (process.argv[2]) {
   const res = await runLoop(process.argv[2], { log: console.log, style: process.argv[3] });
   console.log(JSON.stringify({ accepted: res.accepted, rounds: res.rounds, seconds: res.seconds, image: res.image, report_en: res.report_en }, null, 1));
+}
+
+/** Platform variants of an approved plate: same audited inventory, new framing, each re-audited. */
+export const VARIANTS = {
+  story: { size: "1024x1792", style: "vertical 9:16 Instagram story framing, the plate on a dark slate table, soft side light, room above the plate for text" },
+  swiggy: { size: "1024x1024", style: "square 1:1 delivery-app listing, plate fills the frame, bright even light, clean pale background" },
+  whatsapp: { size: "1536x1024", style: "landscape 3:2 WhatsApp catalogue shot, plate slightly off-centre on a wooden table, warm light" },
+};
+export async function runVariant(imagePath, real, key, opts = {}) {
+  const v = VARIANTS[key]; if (!v) throw new Error("unknown variant " + key);
+  return runLoop(imagePath, { ...opts, real, size: v.size, style: v.style, tag: key, maxRounds: opts.maxRounds ?? 2 });
 }

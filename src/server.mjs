@@ -1,7 +1,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
-import { runLoop } from "./generate.mjs";
+import { runLoop, runVariant, VARIANTS } from "./generate.mjs";
 import { extractFrames } from "./frames.mjs";
 import { transcribeAny, interpretRequest } from "./voice.mjs";
 
@@ -39,6 +39,17 @@ http.createServer(async (req, res) => {
       const job = await startJob(body);
       return json(res, 200, { id: job.id, source: job.source });
     }
+    if (req.method === "POST" && url.pathname === "/api/variant") {
+      const { id, key } = JSON.parse((await readBody(req)).toString());
+      const job = jobs.get(id); if (!job || !job.result?.accepted) return json(res, 400, { error: "no approved photo for this job" });
+      if (!VARIANTS[key]) return json(res, 400, { error: "unknown variant" });
+      const dir = path.join(RUNS, id); const src = path.join(ROOT, job.source);
+      const vjob = { id: `${id}:${key}`, events: [], done: false, result: null, error: null, listeners: new Set() }; jobs.set(vjob.id, vjob);
+      runVariant(src, job.result.real, key, { outDir: dir, log: (msg) => emit(vjob, { type: "log", msg }), onRound: (r) => emit(vjob, { type: "round", ...r, variant: key }) })
+        .then((r) => { vjob.result = { ...r, image: r.image ? `/runs/${id}/${path.basename(r.image)}` : null, variant: key }; vjob.done = true; emit(vjob, { type: "done", result: vjob.result }); })
+        .catch((e) => { vjob.error = e.message; vjob.done = true; emit(vjob, { type: "error", msg: e.message }); });
+      return json(res, 200, { id: vjob.id });
+    }
     if (req.method === "POST" && url.pathname === "/api/voice") {
       const body = JSON.parse((await readBody(req)).toString());
       const m = /^data:([^;]+);base64,(.+)$/s.exec(body.dataUrl); if (!m) return json(res, 400, { error: "bad audio" });
@@ -47,7 +58,7 @@ http.createServer(async (req, res) => {
       finally { fs.rmSync(tmp, { force: true }); }
     }
     if (url.pathname.startsWith("/api/events/")) {
-      const job = jobs.get(url.pathname.split("/").pop()); if (!job) return json(res, 404, { error: "no job" });
+      const job = jobs.get(decodeURIComponent(url.pathname.slice("/api/events/".length))); if (!job) return json(res, 404, { error: "no job" });
       res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" });
       const send = (ev) => res.write(`data: ${JSON.stringify(ev)}\n\n`);
       job.events.forEach(send); if (job.done) return res.end();
