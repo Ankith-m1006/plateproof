@@ -26,7 +26,8 @@ export async function spark({ messages, schema, tools, model = "muse-spark-1.3",
   if (tools) body.tools = tools;
   const res = await postJson("/chat/completions", body);
   const msg = res.choices[0].message;
-  return { msg, usage: res.usage, json: schema && msg.content ? JSON.parse(msg.content) : undefined };
+  if (schema && !msg.content) throw new Error(`spark returned no content (finish_reason=${res.choices[0].finish_reason}, reasoning_tokens=${res.usage?.completion_tokens_details?.reasoning_tokens}); raise maxTokens or lower effort`);
+  return { msg, usage: res.usage, json: schema ? JSON.parse(msg.content) : undefined };
 }
 
 /** Muse Image generation -> Buffer (png). */
@@ -57,10 +58,10 @@ export async function sam({ text, imageDataUrl, videoDataUrl, model = "sam-3.1" 
 }
 
 /** Independent auditor on open weights (Baseten, Muse Spark Open). */
-export async function sparkOpen({ messages, schema, maxTokens = 600 }) {
+export async function sparkOpen({ messages, schema, maxTokens = 2500 }) {
   const key = process.env.BASETEN_API_KEY;
   if (!key) throw new Error("BASETEN_API_KEY missing");
-  const body = { model: "meta-models/muse-spark-open", messages, max_tokens: maxTokens };
+  const body = { model: "meta-models/muse-spark-open", messages, max_tokens: maxTokens, temperature: 0, chat_template_kwargs: { reasoning_effort: "low" } };
   if (schema) body.response_format = { type: "json_schema", json_schema: { name: schema.name, schema: schema.schema } };
   const res = await postJson("/chat/completions", body, { base: "https://inference.baseten.co/v1", key });
   const msg = res.choices[0].message;
