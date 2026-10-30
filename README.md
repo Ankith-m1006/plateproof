@@ -4,6 +4,8 @@
 
 **Live:** https://plateproof-1037019152152.asia-south1.run.app
 
+**Demo video:** https://youtu.be/_D4LylmqDz0
+
 Built for the Meta Global AI Developer Hackathon (Indie track), Oct–Nov 2026, by Ankith M, Hyderabad.
 
 ## Why

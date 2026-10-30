@@ -6,7 +6,7 @@
 
 **Live product:** https://plateproof-1037019152152.asia-south1.run.app
 **Public repo:** https://github.com/Ankith-m1006/plateproof
-**Demo video (3 min):** <YouTube link after upload>
+**Demo video (2:35):** https://youtu.be/_D4LylmqDz0
 **X post (Most Viral bonus):** https://x.com/ankithbuilds/status/2116077114583924790
 
 ## Problem
