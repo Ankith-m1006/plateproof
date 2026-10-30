@@ -37,9 +37,9 @@ export async function museImage({ prompt, size = "1024x1024", n = 1, model = "mu
 }
 
 /** Muse Voice Transcribe, file mode. wavPath must be mono 16-bit PCM 16k/24k. */
-export async function transcribe(wavPath, { languageBias = ["te", "hi", "en"], mode = "ENDPOINTING" } = {}) {
+export async function transcribe(wavPath, { mode = "PUSH_TO_TALK" } = {}) {
   const form = new FormData();
-  form.append("request", new Blob([JSON.stringify({ model: "muse-voice-transcribe-1.0", mode, languageBias })], { type: "application/json" }));
+  form.append("request", new Blob([JSON.stringify({ model: "muse-voice-transcribe-1.0", audioEncoding: "WAV", mode })], { type: "application/json" }));
   form.append("audio", new Blob([fs.readFileSync(wavPath)], { type: "audio/wav" }), "audio.wav");
   const r = await fetch(BASE + "/asr/transcribe", { method: "POST", headers: { Authorization: `Bearer ${KEY()}`, Accept: "application/json" }, body: form });
   const text = await r.text();
