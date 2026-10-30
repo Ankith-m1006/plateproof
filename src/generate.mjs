@@ -11,7 +11,7 @@ const PROMPT_SCHEMA = { name: "shoot_prompt", schema: { type: "object", addition
 
 export async function buildPrompt(real, { style = "clean overhead menu photo, soft daylight, neutral background", fix = "" } = {}) {
   const { json } = await spark({ effort: "minimal", maxTokens: 2000, schema: PROMPT_SCHEMA, messages: [
-    { role: "developer", content: "You write prompts for a food image generator. Hard rule: the image must contain exactly the listed components with the listed counts and colours, in the listed container, and nothing else edible. Never add garnish, sides, drinks or cutlery that are not listed. State every count explicitly in words (e.g. 'exactly three pieces of chicken'). Keep the prompt under 120 words." },
+    { role: "developer", content: "You write prompts for a food image generator. Hard rule: the image must contain exactly the listed components with the listed counts and colours, in the listed container, and nothing else edible. Never add garnish, sides, drinks or cutlery that are not listed. State every count explicitly in words (e.g. 'exactly three pieces of chicken'). Every component in the inventory is mandatory, including those with count 0 (count 0 means a loose spread like rice or gravy, not absent). Only the not_present list and non-listed items are forbidden. Every component is mandatory: name each one, with its vessel if it has one (e.g. 'one small steel bowl of sambar'), and say where it sits on the plate. If a fix instruction is given, apply it literally. Keep the prompt under 120 words." },
     { role: "user", content: `Real plate inventory (ground truth):\n${JSON.stringify(real)}\nStyle: ${style}\n${fix ? `The previous attempt failed this audit, fix it: ${fix}` : ""}` } ] });
   return json;
 }

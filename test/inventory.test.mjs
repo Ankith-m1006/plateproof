@@ -26,3 +26,9 @@ test("missing raita fails; uncountable rice never count-mismatches", () => {
   assert.deepEqual(d.missing, ["raita bowl"]);
   assert.deepEqual(d.countMismatch, []);
 });
+
+import { countBoxes } from "../src/extract.mjs";
+test("countBoxes counts SAM box tokens", () => {
+  assert.equal(countBoxes("<|box;x1=1|><|mask;…|><|box;x1=2|>"), 2);
+  assert.equal(countBoxes("no objects"), 0);
+});
