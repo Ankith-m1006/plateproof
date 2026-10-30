@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { diffInventories } from "../src/inventory.mjs";
 
 const real = { dish: "chicken biryani", container: "white plate", not_present: ["naan"], components: [
-  { name: "chicken piece", count: 4, colour: "brown", position: "centre" },
+  { name: "chicken piece", sam_prompt: "chicken piece", count: 4, colour: "brown", position: "centre" },
   { name: "raita bowl", count: 1, colour: "white", position: "top right" },
   { name: "lemon wedge", count: 2, colour: "yellow", position: "left" },
   { name: "rice", count: 0, colour: "orange-white", position: "everywhere" } ] };

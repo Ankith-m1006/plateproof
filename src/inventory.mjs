@@ -12,11 +12,12 @@ export const INVENTORY_SCHEMA = {
           type: "object", additionalProperties: false,
           properties: {
             name: { type: "string" },
+            sam_prompt: { type: "string", description: "simple visual noun phrase a segmentation model can find, e.g. 'small steel bowl', 'fried snack', 'chicken piece'" },
             count: { type: "integer", description: "0 = uncountable (gravy, rice)" },
             colour: { type: "string" },
             position: { type: "string" }
           },
-          required: ["name", "count", "colour", "position"]
+          required: ["name", "sam_prompt", "count", "colour", "position"]
         }
       },
       not_present: { type: "array", items: { type: "string" }, description: "things a model might add that are NOT on this plate" }

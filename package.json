@@ -4,11 +4,17 @@
   "private": true,
   "type": "module",
   "description": "Honest menu photos: real plate video -> SAM 3.1 inventory -> Muse Image -> independent audit on open weights",
-  "engines": { "node": ">=20.17" },
+  "engines": {
+    "node": ">=20.17"
+  },
   "scripts": {
     "start": "node src/server.mjs",
     "test": "node --test test/**/*.test.mjs",
     "probe": "node scripts/probe-api.mjs"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@meta-sam/parser": "^0.1.0",
+    "openai": "^7.45.1"
+  }
 }
